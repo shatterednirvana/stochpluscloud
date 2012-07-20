@@ -11,7 +11,45 @@
               </a>
             </h3>
             <div id="optional" class="collapse">
+              <br />
+              <label class="checkbox">
+                <input type="checkbox" name="keep-trajectories"> Keep trajectory data
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" name="keep-histograms"> Keep histogram data
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" name="label"> Label columns with species names
+              </label>
+
+              <br />
+              <label>Seed</label>
+              <input type="text" class="span3" name="seed" value="0">
+              <span class="help-block">Seed the random number generator.
+              </span>
+
+              <br />
+              <br />
+              <label>Epsilon</label>
+              <input type="text" class="span3" name="epsilon" value="0.3">
+              <span class="help-block">Set the tolerance (applicable to tau 
+leaping only). Valid values: must be greater than 0.0 and less than 1.0.
+              </span>
+
+              <br />
+              <br />
+              <label>Threshold</label>
+              <input type="text" class="span3" name="threshold" value="10">
+              <span class="help-block">Set the threshold (minimum number of
+reactions per leap before switching to ssa) for tau leaping.
+              </span>
+
             </div>
+
+            <br />
+            <p>
+              <a class="btn btn-primary btn-large" href="#start">Run &raquo;</a>
+            </p>
           </div>
         </div><!--/span-->
 {% endblock %}
