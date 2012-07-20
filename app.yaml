@@ -1,0 +1,17 @@
+application: stochpluscloud
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /static/ico/favicon.ico
+  static_files: static/ico/favicon.ico
+  upload: static/ico/favicon.ico
+- url: /static/css
+  static_dir: static/css
+- url: /static/img
+  static_dir: static/img
+- url: /static/js
+  static_dir: static/js
+- url: .*
+  script: main.py
