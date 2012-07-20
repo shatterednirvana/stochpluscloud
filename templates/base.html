@@ -78,8 +78,21 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">Useful Links</li>
-              <li class="active"><a href="/">Home</a></li>
-              <li><a href="/run">Run a Simulation</a></li>
+              <li
+              {% if active_index %}
+              class="active"
+              {% endif %}
+              ><a href="/">Home</a></li>
+              <li
+              {% if active_upload %}
+              class="active"
+              {% endif %}
+              ><a href="/upload">Upload a Model</a></li>
+              <li
+              {% if active_run %}
+              class="active"
+              {% endif %}
+              ><a href="/run">Run a Simulation</a></li>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

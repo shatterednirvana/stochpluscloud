@@ -15,16 +15,26 @@ from google.appengine.ext.webapp import template
 
 class MainPage(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(template.render('templates/index.html', {}))
+    self.response.out.write(template.render('templates/index.html', 
+                                            {'active_index': True}))
+
+
+class UploadModelPage(webapp.RequestHandler):
+  def get(self):
+    self.response.out.write(template.render('templates/upload.html', 
+                                            {'active_upload': True}))
 
 
 class RunPage(webapp.RequestHandler):
   def get(self):
-    self.response.out.write(template.render('templates/run.html', {}))
+    self.response.out.write(template.render('templates/run.html', 
+                                            {'active_run': True}))
+
 
 def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
     ('/', MainPage),
+    ('/upload', UploadModelPage),
     ('/run', RunPage)
   ]))
 

@@ -4,22 +4,52 @@
         <div class="span9">
           <div class="hero-unit">
             <h2>Run a Simulation</h2>
+            <br />
+            <br />
+
             <h3>Required Parameters</h3>
+            <br />
+
+            <label class="control-label" for="model">Model:</label>
+            <input class="input-file" id="model" type="file">
+
+            <br />
+            <br />
+            Simulation time
+            <br />
+            <input type="text" class="input-small" disabled="disabled" 
+              value="0">
+            &nbsp; to &nbsp;
+            <input type="text" class="input-small" placeholder="t">
+
+            <br />
+            <br />
+            <label>Realizations</label>
+            <input type="text" class="span3" name="realizations" value="1">
+            <span class="help-block">Number of realizations.</span>
+
+            <br />
+            <br />
             <h3>
               <a data-toggle="collapse" data-target="#optional">
                 Optional Parameters
               </a>
             </h3>
+
             <div id="optional" class="collapse">
               <br />
+
               <label class="checkbox">
-                <input type="checkbox" name="keep-trajectories"> Keep trajectory data
+                <input type="checkbox" name="keep-trajectories">
+                Keep trajectory data
               </label>
               <label class="checkbox">
-                <input type="checkbox" name="keep-histograms"> Keep histogram data
+                <input type="checkbox" name="keep-histograms">
+                Keep histogram data
               </label>
               <label class="checkbox">
-                <input type="checkbox" name="label"> Label columns with species names
+                <input type="checkbox" name="label">
+                Label columns with species names
               </label>
 
               <br />
