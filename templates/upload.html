@@ -4,6 +4,27 @@
         <div class="span9">
           <div class="hero-unit">
             <h2>Upload a Model</h2>
+            <form class="well form" method="post" action="/model">
+
+              <div>
+              <label>Name</label>
+              <input type="text" class="span3" name="name" placeholder="fooModel">
+              <span class="help-block">The name this model should be referenced
+by.
+              </span>
+              </div>
+
+              <br />
+              <div>
+                <label class="control-label" for="model">File:</label>
+                <input class="input-file" id="model" type="file">
+              </div>
+
+              <br />
+              <button type="submit" class="btn-primary btn-large">
+                Upload &raquo;
+              </button>
+            </form>
           </div>
         </div><!--/span-->
 {% endblock %}

@@ -10,8 +10,18 @@
             <h3>Required Parameters</h3>
             <br />
 
-            <label class="control-label" for="model">Model:</label>
-            <input class="input-file" id="model" type="file">
+            {% if models_present %}
+              <label class="control-label" for="model">Model:</label>
+              {% for model in models %}
+                <label class="radio">
+                  <input type="radio" name="optionsRadios" id="model_name" 
+                    value="{{model}}">
+                  {{ model }}
+                </label>
+              {% endfor %}
+            {% else %}
+              No models have been uploaded yet. <a href="/upload">Upload one?</a>
+            {% endif %}
 
             <br />
             <br />
