@@ -12,6 +12,7 @@ import wsgiref.handlers
 
 from google.appengine.api import users
 from google.appengine.api import urlfetch
+from google.appengine.api.appscale import babel
 
 
 from google.appengine.ext import db
@@ -142,6 +143,11 @@ class RunPage(webapp.RequestHandler):
   """
 
   def get(self):
+    """
+      Lists all the uploaded models on a web page so that the user can pick
+        which one should be used to run their simulations.
+    """
+
     model_query = db.GqlQuery("SELECT * FROM StochKitModelWrapper")
     model_names = [model.key().name() for model in model_query]
     if len(model_names) > 0:
@@ -156,9 +162,46 @@ class RunPage(webapp.RequestHandler):
 
 
   def post(self):
-    # get each param
-    keep_trajectories = self.request.get('keep-trajectories')
-    logging.debug("keep trajectories? %s" % keep_trajectories)
+    """
+      Runs StochKit2.0 via babel, with the arguments passed in via the web UI.
+    """
+    encoded_params = self.request.get('parameters')
+    # TODO(cgb): validate this
+
+    params = json.loads(encoded_params)
+    model = params['model']
+    time = params['time']
+    realizations = params['realizations']
+    keep_trajectories = params['keep-trajectories']
+    keep_trajectories = params['keep-histograms']
+    label = params['label']
+    seed = params['seed']
+    epsilon = params['epsilon']
+    threshold = params['threshold']
+    where_to_run = params['where_to_run']
+
+    # TODO(cgb): how do we get the model file there? presumably babel takes care
+    # of this for us.
+    args = "--model something --time %s --realizations %s " % (time,
+      realizations)
+
+    if keep_trajectories:
+      args += "--keep-trajectories "
+
+    if keep_histograms:
+      args += "--keep-histograms "
+
+    if label:
+      args += "--label "
+
+    args += "--seed %s --epsilon %s --threshold %s" % (seed, epsilon, threshold)
+
+    params = {
+      ':type': 'babel',
+      ':code': '/usr/local/StochKit2.0/ssa',
+      ':argv': args
+    }
+    result = json.loads(params)
 
 
 def create_model(name, model):

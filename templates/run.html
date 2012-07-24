@@ -30,12 +30,12 @@
             <input type="text" class="input-small" disabled="disabled" 
               value="0">
             &nbsp; to &nbsp;
-            <input type="text" class="input-small" placeholder="t">
+            <input type="text" class="input-small" id="time" placeholder="t">
 
             <br />
             <br />
             <label>Realizations</label>
-            <input type="text" class="span3" name="realizations" value="1">
+            <input type="text" class="span3" id="realizations" value="1">
             <span class="help-block">Number of realizations.</span>
 
             <br />
@@ -50,28 +50,28 @@
               <br />
 
               <label class="checkbox">
-                <input type="checkbox" name="keep-trajectories">
+                <input type="checkbox" id="keep-trajectories">
                 Keep trajectory data
               </label>
               <label class="checkbox">
-                <input type="checkbox" name="keep-histograms">
+                <input type="checkbox" id="keep-histograms">
                 Keep histogram data
               </label>
               <label class="checkbox">
-                <input type="checkbox" name="label">
+                <input type="checkbox" id="label">
                 Label columns with species names
               </label>
 
               <br />
               <label>Seed</label>
-              <input type="text" class="span3" name="seed" value="0">
+              <input type="text" class="span3" id="seed" value="0">
               <span class="help-block">Seed the random number generator.
               </span>
 
               <br />
               <br />
               <label>Epsilon</label>
-              <input type="text" class="span3" name="epsilon" value="0.3">
+              <input type="text" class="span3" id="epsilon" value="0.3">
               <span class="help-block">Set the tolerance (applicable to tau 
 leaping only). Valid values: must be greater than 0.0 and less than 1.0.
               </span>
@@ -79,7 +79,7 @@ leaping only). Valid values: must be greater than 0.0 and less than 1.0.
               <br />
               <br />
               <label>Threshold</label>
-              <input type="text" class="span3" name="threshold" value="10">
+              <input type="text" class="span3" id="threshold" value="10">
               <span class="help-block">Set the threshold (minimum number of
 reactions per leap before switching to ssa) for tau leaping.
               </span>
@@ -88,8 +88,12 @@ reactions per leap before switching to ssa) for tau leaping.
 
             <br />
             <p>
-              <a class="btn btn-primary btn-large" href="#local">Run Locally &raquo;</a>
-              <a class="btn btn-primary btn-large" href="#cloud">Run via Cloud &raquo;</a>
+              <button class="btn btn-primary btn-large" id="local">
+                Run Locally &raquo;
+              </button>
+              <button class="btn btn-primary btn-large" id="cloud">
+                Run via Cloud &raquo;
+              </button>
             </p>
           </div>
         </div><!--/span-->
