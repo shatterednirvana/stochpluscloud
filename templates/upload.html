@@ -4,24 +4,31 @@
         <div class="span9">
           <div class="hero-unit">
             <h2>Upload a Model</h2>
-            <form class="well form" method="post" action="/model">
-
-              <div>
+            <form class="well form" method="post" action="/upload">
+              {% if error %}
+                <div class="control-group error">
+                  <label class="control-label" for="inputError">
+                    There were errors with your submission:
+                      {{ error }}
+                  </label>
+                </div>
+                <br />
+              {% endif %}
               <label>Name</label>
-              <input type="text" class="span3" name="name" placeholder="fooModel">
+              <input type="text" class="span3" id="name" name="name" 
+                placeholder="fooModel">
               <span class="help-block">The name this model should be referenced
-by.
+  by.
               </span>
-              </div>
 
               <br />
               <div>
                 <label class="control-label" for="model">File:</label>
-                <input class="input-file" id="model" type="file">
+                <input class="input-file" name="model" id="model" type="file">
               </div>
 
               <br />
-              <button type="submit" class="btn-primary btn-large">
+              <button id="upload" class="btn-primary btn-large">
                 Upload &raquo;
               </button>
             </form>
