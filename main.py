@@ -13,6 +13,7 @@ import wsgiref.handlers
 from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.api.appscale import babel
+from google.appengine.api.appscale import neptune
 
 
 from google.appengine.ext import db
@@ -29,6 +30,23 @@ class StochKitModelWrapper(db.Model):
       as the keyname, to avoid the unnecessary cost of indexing it.
   """
   model = db.TextProperty()
+
+
+class EnsembleResultWrapper(db.Model):
+  """
+    An EnsembleResultWrapper is a representation of the results produced by
+      running a StochKit ensemble. Typically this produces a series of averages
+      and variances. params refers to the babel-produced metadata that indicates
+      where the standard output, standard error, and profiling information is
+      stored, and results are the averages and variances produced by the
+      simulation (typically saved to standard output). Finally, model refers to
+      the model that was used to generate these results.
+
+      TODO(cgb): Should we reference the model itself or just say the name?
+      TODO(cgb): Should we include the parameters used to generate the results?
+  """
+  params = db.TextProperty()
+  results = db.TextProperty()
 
 
 class MainPage(webapp.RequestHandler):
@@ -166,24 +184,27 @@ class RunPage(webapp.RequestHandler):
       Runs StochKit2.0 via babel, with the arguments passed in via the web UI.
     """
     encoded_params = self.request.get('parameters')
-    # TODO(cgb): validate this
 
     params = json.loads(encoded_params)
+    # TODO(cgb): validate this
+    output = params['output']
     model = params['model']
     time = params['time']
     realizations = params['realizations']
     keep_trajectories = params['keep-trajectories']
-    keep_trajectories = params['keep-histograms']
+    keep_histograms = params['keep-histograms']
     label = params['label']
     seed = params['seed']
     epsilon = params['epsilon']
     threshold = params['threshold']
     where_to_run = params['where_to_run']
 
-    # TODO(cgb): how do we get the model file there? presumably babel takes care
-    # of this for us.
-    args = "--model something --time %s --realizations %s " % (time,
-      realizations)
+    model_wrapper = StochKitModelWrapper.get_by_key_name(model)
+    model_contents = model_wrapper.model
+    model_file_location = neptune.write_neptune_job_code(model_contents)
+
+    args = "--model %s --time %s --realizations %s " % (model_file_location, 
+      time, realizations)
 
     if keep_trajectories:
       args += "--keep-trajectories "
@@ -195,13 +216,19 @@ class RunPage(webapp.RequestHandler):
       args += "--label "
 
     args += "--seed %s --epsilon %s --threshold %s" % (seed, epsilon, threshold)
+    logging.debug("Running StochKit with argv: [%s]" % args)
 
     params = {
       ':type': 'babel',
       ':code': '/usr/local/StochKit2.0/ssa',
       ':argv': args
     }
-    result = json.loads(params)
+    job_result = json.loads(babel.run_job(params))
+
+    result = EnsembleResultWrapper(key_name = output)
+    result.params = job_result
+    result.put()
+    self.response.out.write(json.dumps({'success':True}))
 
 
 def create_model(name, model):

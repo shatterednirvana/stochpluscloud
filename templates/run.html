@@ -7,14 +7,14 @@
             <br />
             <br />
 
+            <div class="well form" id="form">
             <h3>Required Parameters</h3>
             <br />
-
             {% if models_present %}
               <label class="control-label" for="model">Model:</label>
               {% for model in models %}
                 <label class="radio">
-                  <input type="radio" name="optionsRadios" id="model_name" 
+                  <input type="radio" name="model_name" id="model_name" 
                     value="{{model}}">
                   {{ model }}
                 </label>
@@ -37,6 +37,10 @@
             <label>Realizations</label>
             <input type="text" class="span3" id="realizations" value="1">
             <span class="help-block">Number of realizations.</span>
+
+            <label>Output Name:</label>
+            <input type="text" class="span3" id="output" value="job_output">
+            <span class="help-block">A name that identifies the output of this ensemble.</span>
 
             <br />
             <br />
@@ -81,7 +85,7 @@ leaping only). Valid values: must be greater than 0.0 and less than 1.0.
               <label>Threshold</label>
               <input type="text" class="span3" id="threshold" value="10">
               <span class="help-block">Set the threshold (minimum number of
-reactions per leap before switching to ssa) for tau leaping.
+reactions per leap before switching to SSA) for tau leaping.
               </span>
 
             </div>
@@ -95,6 +99,7 @@ reactions per leap before switching to ssa) for tau leaping.
                 Run via Cloud &raquo;
               </button>
             </p>
+            </div>
           </div>
         </div><!--/span-->
 {% endblock %}

@@ -15,10 +15,11 @@ $(document).ready(function() {
 function runStochKit(whereToRun) {
   // TODO(cgb): validate these params first, and if they're good...
 
-  // require params
-  // TODO(cgb): model
+  // required params
+  var model = $("input[name=model_name]:checked", '#form').val()
   var time = $('#time').val();
   var realizations = $('#realizations').val();
+  var output = $('#output').val();
 
   // optional params
   var keep_trajectories = get_checked_for('#keep-trajectories');
@@ -30,19 +31,30 @@ function runStochKit(whereToRun) {
 
   // TODO(cgb): whereToRun
 
-  /*
+  var params = {
+    'model':model,
+    'time':time,
+    'realizations':realizations,
+    'output':output,
+    'keep-trajectories':keep_trajectories,
+    'keep-histograms':keep_histograms,
+    'label':label,
+    'seed':seed,
+    'epsilon':epsilon,
+    'threshold':threshold,
+    'where_to_run':whereToRun
+  }
+
   $.ajax({
     type: 'POST',
     async: true,
     url: '/run',
-    data: {
-            
-    },
+    data: {'parameters':JSON.stringify(params)},
     success: function(data) {
-      components = JSON.parse(data);  // gives us [{name. ip}]
+      var something = JSON.parse(data);
   }
 
-  }); */
+  });
 }
 
 
