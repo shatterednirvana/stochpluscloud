@@ -4,7 +4,8 @@
         <div class="span9">
           <div class="hero-unit">
             <h2>Upload a Model</h2>
-            <form class="well form" method="post" action="/upload">
+            <form class="well form" enctype="multipart/form-data" method="post"
+              action="/upload">
               {% if error %}
                 <div class="control-group error">
                   <label class="control-label" for="inputError">
@@ -16,7 +17,7 @@
               {% endif %}
               <label>Name</label>
               <input type="text" class="span3" id="name" name="name" 
-                placeholder="fooModel">
+                placeholder="fooModel" />
               <span class="help-block">The name this model should be referenced
   by.
               </span>
@@ -24,7 +25,7 @@
               <br />
               <div>
                 <label class="control-label" for="model">File:</label>
-                <input class="input-file" name="model" id="model" type="file">
+                <input class="input-file" name="model" id="model" type="file" />
               </div>
 
               <br />

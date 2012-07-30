@@ -8,6 +8,30 @@ $(document).ready(function() {
     runStochKit('local');
   });
 
+  $('#view').click(function() {
+    var result_name = $("input[name=result_name]:checked", '#form').val()
+
+    disableButtons();
+
+    $.ajax({
+      type: 'GET',
+      async: true,
+      url: '/result',
+      data: {'name':result_name},
+      success: function(data) {
+        var result = JSON.parse(data);
+        if (result['success'] == true) {
+          $('#result').text(result['result']);
+        } else {
+          var reason = "There was a problem getting the results of your job: " +
+            result['reason'];
+          $('#result').text(reason);
+        }
+        enableButtons();
+      }
+    });
+
+  });
 
 }); // end document/ready
 
@@ -45,15 +69,22 @@ function runStochKit(whereToRun) {
     'where_to_run':whereToRun
   }
 
+  disableButtons();
+
   $.ajax({
     type: 'POST',
     async: true,
     url: '/run',
     data: {'parameters':JSON.stringify(params)},
     success: function(data) {
-      var something = JSON.parse(data);
-  }
-
+      var result = JSON.parse(data);
+      if (result['success'] == true) {
+        alert("Job started successfully!");
+      } else {
+        $('#errors').text("Job was not started successfully.");
+      }
+      enableButtons();
+    }
   });
 }
 
@@ -64,4 +95,18 @@ function get_checked_for(id) {
   } else {
     return false;
   }
+}
+
+
+function enableButtons() {
+  $('#local').removeAttr('disabled');
+  $('#cloud').removeAttr('disabled');
+  $('#view').removeAttr('disabled');
+}
+
+
+function disableButtons() {
+  $("#local").attr("disabled", "disabled");
+  $("#cloud").attr("disabled", "disabled");
+  $("#view").attr("disabled", "disabled");
 }

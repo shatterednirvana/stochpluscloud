@@ -3,13 +3,19 @@
 
 import cgi
 import datetime
-import json
+
+try:
+  import json
+except ImportError:
+  from django.utils import simplejson as json
+
 import logging
 import re
 import urllib
 import wsgiref.handlers
 
 
+from google.appengine.api import taskqueue
 from google.appengine.api import users
 from google.appengine.api import urlfetch
 from google.appengine.api.appscale import babel
@@ -131,6 +137,37 @@ class ModelREST(webapp.RequestHandler):
       return
 
 
+class ResultREST(webapp.RequestHandler):
+  def get(self):
+    name = self.request.get('name')
+    if not name:
+      result = {'success': False, 'reason': 'Name not specified'}
+      self.response.out.write(json.dumps(result))
+      return
+
+    try:
+      ensemble_wrapper = EnsembleResultWrapper.get_by_key_name(name)
+      if not ensemble_wrapper:
+        result = {'success': False, 'reason': 'Result not found.'}
+        self.response.out.write(json.dumps(result))
+        return
+
+      try:
+        result = ensemble_wrapper.result
+      except AttributeError:
+        result = babel.get_output(ensemble_wrapper.params)
+        ensemble_wrapper.result = result
+        ensemble_wrapper.put()
+
+      result = {'success': True, 'result': ensemble_wrapper.result}
+      self.response.out.write(json.dumps(result))
+      return
+    except:
+      result = {'success': False, 'reason': 'Datastore error.'}
+      self.response.out.write(json.dumps(result))
+      return
+
+
 class UploadModelPage(webapp.RequestHandler):
   """
     Provides a web UI around POST /model, to allow users to create
@@ -203,32 +240,81 @@ class RunPage(webapp.RequestHandler):
     model_contents = model_wrapper.model
     model_file_location = neptune.write_neptune_job_code(model_contents)
 
-    args = "--model %s --time %s --realizations %s " % (model_file_location, 
-      time, realizations)
+    args = []
+    args.append('--model')
+    args.append(model_file_location)
+
+    args.append('--time')
+    args.append(time)
+
+    args.append('--realizations')
+    args.append(realizations)
 
     if keep_trajectories:
-      args += "--keep-trajectories "
+      args.append('--keep-trajectories')
 
     if keep_histograms:
-      args += "--keep-histograms "
+      args.append('--keep-histograms')
 
     if label:
-      args += "--label "
+      args.append('--label')
 
-    args += "--seed %s --epsilon %s --threshold %s" % (seed, epsilon, threshold)
-    logging.debug("Running StochKit with argv: [%s]" % args)
+    args.append('--seed')
+    args.append(seed)
+
+    args.append('--epsilon')
+    args.append(epsilon)
+
+    args.append('--threshold')
+    args.append(threshold)
+
+    bash_script_contents = """#!/bin/bash
+/usr/local/StochKit2.0/ssa $@ --out-dir /tmp/baz/ --force
+cat /tmp/baz/stats/means.txt
+cat /tmp/baz/stats/variances.txt
+"""
+    bash_script_location = neptune.write_neptune_job_code(bash_script_contents)
 
     params = {
-      ':type': 'babel',
-      ':code': '/usr/local/StochKit2.0/ssa',
-      ':argv': args
+      ':code': bash_script_location,
+      ':argv': args,
+      ':bucket_name': "neptune-testbin",
+      ':executable': "bash",
+      ':storage': "s3",
+      ':EC2_ACCESS_KEY': "your access key",
+      ':EC2_SECRET_KEY': "your secret key",
+      ':S3_URL': 'https://s3.amazonaws.com/'
     }
-    job_result = json.loads(babel.run_job(params))
+    job_result = babel.run_job(params)
+
+    # TODO(cgb): remove the files we wrote to run the babel job
 
     result = EnsembleResultWrapper(key_name = output)
-    result.params = job_result
+    result.params = json.dumps(job_result)
     result.put()
+
+    # Prepopulate the result in the background, once the job finishes.
+    taskqueue.add(url='/result', params={'name': output}, method='GET')
+
     self.response.out.write(json.dumps({'success':True}))
+
+
+
+class ViewPage(webapp.RequestHandler):
+
+  
+  def get(self):
+    result_query = db.GqlQuery("SELECT * FROM EnsembleResultWrapper")
+    result_names = [result.key().name() for result in result_query]
+    if len(result_names) > 0:
+      results_present = True
+    else:
+      results_present = False
+
+    self.response.out.write(template.render('templates/view.html', 
+                                            {'active_view': True,
+                                             'results_present': results_present,
+                                             'results': result_names}))
 
 
 def create_model(name, model):
@@ -263,8 +349,10 @@ def main():
   wsgiref.handlers.CGIHandler().run(webapp.WSGIApplication([
     ('/', MainPage),
     ('/model', ModelREST),
+    ('/result', ResultREST),
     ('/upload', UploadModelPage),
-    ('/run', RunPage)
+    ('/run', RunPage),
+    ('/view', ViewPage)
   ]))
 
 
